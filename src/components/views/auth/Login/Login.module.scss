@@ -22,27 +22,8 @@
         box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
         margin-bottom: 20px;
 
-        &__item {
-            display: flex;
-            flex-direction: column;
-            margin: 20px 0;
-
-            &__input {
-                padding: 10px;
-                background-color: #eee;
-                margin-top: 5px;
-                border: none;
-                outline: none;
-            }
-        }
-
         &__button {
-            background-color: #000;
-            color: #fff;
             width: 100%;
-            padding: 15px;
-            border: none;
-            cursor: pointer;
         }
 
         &__divider {
@@ -54,11 +35,7 @@
             width: 100%;
 
             &__button {
-                background-color: #000;
-                color: #fff;
                 width: 100%;
-                padding: 15px;
-                border: none;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -66,16 +43,15 @@
                 cursor: pointer;
 
                 i {
-                    font-size: 24px;
+                    font-size: 16px;
                 }
             }
         }
+    }
 
-        &__link {
-            a {
-                color: #23bebe;
-            }
+    &__link {
+        a {
+            color: #23bebe;
         }
-
     }
 }
