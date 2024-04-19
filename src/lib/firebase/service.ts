@@ -7,8 +7,8 @@ const firestore = getFirestore(app);
 export async function retrieveData(collectionName: string) {
     const snapshot = await getDocs(collection(firestore, collectionName));
     const data = snapshot.docs.map(doc => ({
-        id: doc.id, 
-        ...doc.data() 
+        id: doc.id,
+        ...doc.data()
     }
     ));
 
@@ -29,13 +29,13 @@ export async function signUp(userData: {
     role?: string;
 }, callback: Function) {
     const q = query(
-        collection(firestore, 'users'), 
+        collection(firestore, 'users'),
         where('email', '==', userData.email)
     );
 
     const snapshot = await getDocs(q);
     const data = snapshot.docs.map(doc => ({
-        id: doc.id, 
+        id: doc.id,
         ...doc.data()
     }))
 
@@ -48,25 +48,25 @@ export async function signUp(userData: {
         userData.password = await bcrypt.hash(userData.password, 10);
 
         await addDoc(collection(firestore, 'users'), userData)
-        .then(() => { 
-            callback(true);
-        })
-        .catch((error) => { 
-            callback(false);
-            console.log('Error adding document: ', error); 
-    });
+            .then(() => {
+                callback(true);
+            })
+            .catch((error) => {
+                callback(false);
+                console.log('Error adding document: ', error);
+            });
     }
 }
 
 export async function signIn(email: string) {
     const q = query(
-        collection(firestore, 'users'), 
+        collection(firestore, 'users'),
         where('email', '==', email)
     );
 
     const snapshot = await getDocs(q);
     const data = snapshot.docs.map(doc => ({
-        id: doc.id, 
+        id: doc.id,
         ...doc.data()
     }))
 
@@ -74,5 +74,31 @@ export async function signIn(email: string) {
         return data[0]
     } else {
         return null
+    }
+}
+
+export async function loginWithGoogle(data: any, callback: Function) {
+    const q = query(
+        collection(firestore, 'users'),
+        where('email', '==', data.email)
+    );
+
+    const snapshot = await getDocs(q);
+    const user = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+    }))
+
+    if (user.length > 0) {
+        callback(user[0]);
+    } else {
+        data.role = 'member';
+        await addDoc(collection(firestore, 'users'), data)
+            .then(() => {
+                callback(data);
+            })
+            .catch((error) => {
+                console.log('Error adding document: ', error);
+            });
     }
 }
