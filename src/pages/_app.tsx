@@ -5,6 +5,7 @@ import type { AppProps } from 'next/app';
 import { Lato } from 'next/font/google';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const lato = Lato({
   subsets: ['latin'],
@@ -23,6 +24,7 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
       <div className={lato.className}>
         {!disableNavbar.includes(pathname.split('/')[1]) && <Navbar />}
         <Component {...pageProps} />
+        <SpeedInsights />
       </div>
     </SessionProvider>
   );
