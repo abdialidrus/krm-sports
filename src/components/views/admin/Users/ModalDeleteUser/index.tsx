@@ -16,7 +16,7 @@ const ModalDeleteUser = (props: any) => {
   return (
     <Modal onClose={() => setDeletedUser({})}>
       <h1 className={styles.modal__title}>Are you sure?</h1>
-      <Button type="button" onClick={async () => handleDelete}>
+      <Button type="button" onClick={handleDelete}>
         Delete
       </Button>
     </Modal>
