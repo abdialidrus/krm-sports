@@ -41,13 +41,25 @@ export async function signIn(email: string) {
   }
 }
 
-export async function loginWithGoogle(data: { email: string; role?: string }, callback: Function) {
+export async function loginWithGoogle(
+  data: {
+    email: string;
+    password?: string;
+    role?: string;
+    created_at?: Date;
+    updated_at?: Date;
+  },
+  callback: Function
+) {
   const user = await retrieveDataByField('users', 'email', data.email);
 
   if (user.length > 0) {
     callback(user[0]);
   } else {
     data.role = 'member';
+    data.created_at = new Date();
+    data.updated_at = new Date();
+    data.password = '';
     await addData('users', data, (result: boolean) => {
       if (result) {
         callback(data);
