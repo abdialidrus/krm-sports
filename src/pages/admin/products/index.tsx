@@ -1,14 +1,11 @@
-import AdminLayout from "@/components/layouts/AdminLayout"
+import AdminLayout from '@/components/layouts/AdminLayout';
 
 const AdminProductsPage = () => {
-    return (
-        <AdminLayout>
-            <div>
+  return (
+    <AdminLayout>
+      <div></div>
+    </AdminLayout>
+  );
+};
 
-            </div>
-        </AdminLayout>
-
-    )
-}
-
-export default AdminProductsPage
+export default AdminProductsPage;
