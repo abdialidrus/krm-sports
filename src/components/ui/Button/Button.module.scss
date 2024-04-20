@@ -1,5 +1,4 @@
 .button {
-
     padding: 15px 30px;
     border: none;
     display: flex;
@@ -7,9 +6,15 @@
     align-items: center;
     cursor: pointer;
     font-size: 16px;
+    font-weight: 700;
 }
 
 .primary {
     background-color: #000;
     color: #fff;
+}
+
+.secondary {
+    background-color: #fff;
+    color: #000;
 }
