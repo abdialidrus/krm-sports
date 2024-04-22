@@ -8,7 +8,26 @@ const userServices = {
         Authorization: `Bearer ${token}`,
       },
     }),
-  updateUser: (token: string, id: string, data: { role: string }) => {
+  updateUserRole: (token: string, id: string, data: { role: string }) => {
+    return instance.put(
+      `/api/users/${id}`,
+      { data },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  },
+  updateUserProfile: (
+    token: string,
+    id: string,
+    data: {
+      fullname: string;
+      email: string;
+      phone: string;
+    }
+  ) => {
     return instance.put(
       `/api/users/${id}`,
       { data },
@@ -21,6 +40,12 @@ const userServices = {
   },
   deleteUser: (token: string, id: string) =>
     instance.delete(`/api/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }),
+  getProfile: (token: string, id: string) =>
+    instance.get(`/api/users/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

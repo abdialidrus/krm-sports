@@ -1,16 +1,25 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { deleteData, updateData } from '@/lib/firebase/service';
+import { deleteData, retrieveDataById, updateData } from '@/lib/firebase/service';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import jwt, { VerifyErrors } from 'jsonwebtoken';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    res.status(200).json({ status: true, statusCode: 200, message: 'success' });
+    const token = req.headers.authorization?.split(' ')[1] || '';
+    jwt.verify(token, process.env.NEXTAUTH_SECRET || '', async (err: VerifyErrors | null, decoded: any) => {
+      if (decoded) {
+        const { id }: any = req.query;
+        const data = await retrieveDataById('users', id);
+        res.status(200).json({ status: true, statusCode: 200, message: 'success', data });
+      } else {
+        res.status(403).json({ status: false, statusCode: 403, message: 'Access denied' });
+      }
+    });
   } else if (req.method === 'PUT') {
     const token = req.headers.authorization?.split(' ')[1] || '';
 
     jwt.verify(token, process.env.NEXTAUTH_SECRET || '', async (err: VerifyErrors | null, decoded: any) => {
-      if (decoded && decoded.role === 'admin') {
+      if (decoded) {
         const { id }: any = req.query;
         const { data } = req.body;
         await updateData('users', id, data, (result: boolean) => {

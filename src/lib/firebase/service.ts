@@ -42,10 +42,10 @@ export async function retrieveDataByField(collectionName: string, field: string,
   return data;
 }
 
-export async function addData(collectionName: string, data: any, callback: (success: boolean) => void) {
+export async function addData(collectionName: string, data: any, callback: (status: boolean, result?: any) => void) {
   await addDoc(collection(firestore, collectionName), data)
-    .then(() => {
-      callback(true);
+    .then((res) => {
+      callback(true, res);
     })
     .catch(() => {
       callback(false);

@@ -21,7 +21,7 @@ const ModalUpdateUser = (props: any) => {
       role: form.role.value,
     };
 
-    const result = await userServices.updateUser(session.data?.accessToken, updatedUser.id, data);
+    const result = await userServices.updateUserRole(session.data?.accessToken, updatedUser.id, data);
 
     if (result.status === 200) {
       setIsLoading(false);

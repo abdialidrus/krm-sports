@@ -1,11 +1,11 @@
-import DashboardAdminView from '@/components/views/admin/Dashboard';
+import AdminDashboardView from '@/components/views/admin/Dashboard';
 
-const AdminPage = () => {
+const AdminDashboardPage = () => {
   return (
     <>
-      <DashboardAdminView />
+      <AdminDashboardView />
     </>
   );
 };
 
-export default AdminPage;
+export default AdminDashboardPage;

@@ -5,6 +5,7 @@ import Button from '@/components/ui/Button';
 import { signOut } from 'next-auth/react';
 
 type Proptypes = {
+  title: string;
   menus: Array<{
     title: string;
     url: string;
@@ -12,12 +13,12 @@ type Proptypes = {
   }>;
 };
 const Sidebar = (props: Proptypes) => {
-  const { menus } = props;
+  const { title, menus } = props;
   const { pathname } = useRouter();
   return (
     <div className={styles.sidebar}>
       <div className={styles.sidebar__top}>
-        <h1 className={styles.sidebar__top__title}>Admin Panel</h1>
+        <h1 className={styles.sidebar__top__title}>{title}</h1>
         <div className={styles.sidebar__top__list}>
           {menus.map((menu) => (
             <Link
