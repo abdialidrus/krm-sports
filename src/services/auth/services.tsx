@@ -10,6 +10,7 @@ export async function signUp(
     phone: string;
     password: string;
     role?: string;
+    image?: string;
     created_at?: Date;
     updated_at?: Date;
   },
@@ -23,6 +24,7 @@ export async function signUp(
     if (!userData.role) {
       userData.role = 'member';
     }
+    userData.image = '';
     userData.password = await bcrypt.hash(userData.password, 10);
     userData.created_at = new Date();
     userData.updated_at = new Date();

@@ -12,8 +12,11 @@ import {
   where,
 } from 'firebase/firestore';
 import app from './init';
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 
 const firestore = getFirestore(app);
+
+const storage = getStorage(app);
 
 export async function retrieveData(collectionName: string) {
   const snapshot = await getDocs(collection(firestore, collectionName));
@@ -77,4 +80,36 @@ export async function deleteData(collectionName: string, id: any, callback: (res
     .catch(() => {
       callback(false);
     });
+}
+
+export async function uploadFile(
+  fileName: string,
+  file: any,
+  callback: (isComplete: boolean, result?: string) => void
+) {
+  if (file) {
+    if (file.size < 1048576) {
+      const storageRef = ref(storage, fileName);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+      uploadTask.on(
+        'state_changed',
+        () => {
+          // const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          callback(false);
+        },
+        () => {
+          callback(false);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL: any) => {
+            callback(true, downloadURL);
+          });
+        }
+      );
+    } else {
+      callback(false, 'File is too large');
+    }
+  } else {
+    callback(false, 'File is empty');
+  }
 }

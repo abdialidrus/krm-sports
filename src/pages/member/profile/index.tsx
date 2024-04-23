@@ -28,7 +28,7 @@ const MemberProfilePage = () => {
   }, [session]);
   return (
     <>
-      <MemberProfileView profile={profile} />
+      <MemberProfileView profile={profile} setProfile={setProfile} />
     </>
   );
 };

@@ -38,6 +38,23 @@ const userServices = {
       }
     );
   },
+  updateUserImage: (
+    token: string,
+    id: string,
+    data: {
+      image: string;
+    }
+  ) => {
+    return instance.put(
+      `/api/users/${id}`,
+      { data },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  },
   deleteUser: (token: string, id: string) =>
     instance.delete(`/api/users/${id}`, {
       headers: {
