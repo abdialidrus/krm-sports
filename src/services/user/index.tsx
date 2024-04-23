@@ -24,7 +24,6 @@ const userServices = {
     id: string,
     data: {
       fullname: string;
-      email: string;
       phone: string;
     }
   ) => {
@@ -43,6 +42,24 @@ const userServices = {
     id: string,
     data: {
       image: string;
+    }
+  ) => {
+    return instance.put(
+      `/api/users/${id}`,
+      { data },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+  },
+  updateUserPassword: (
+    token: string,
+    id: string,
+    data: {
+      password: string;
+      oldPassword: string;
     }
   ) => {
     return instance.put(

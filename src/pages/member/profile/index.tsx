@@ -11,6 +11,7 @@ const MemberProfilePage = () => {
     email: '',
     fullname: '',
     role: '',
+    password: '',
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = useSession();
@@ -21,6 +22,7 @@ const MemberProfilePage = () => {
       if (session.data === undefined) return;
 
       const { data } = await userServices.getProfile(session.data?.accessToken, session.data?.user?.id);
+      console.log(data.data);
       setProfile(data.data);
     };
 

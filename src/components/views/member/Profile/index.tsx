@@ -16,6 +16,7 @@ type PropTypes = {
     email: string;
     fullname: string;
     role: string;
+    password: string;
   };
   setProfile: Dispatch<
     SetStateAction<{
@@ -24,6 +25,7 @@ type PropTypes = {
       email: string;
       fullname: string;
       role: string;
+      password: string;
     }>
   >;
 };
@@ -34,6 +36,7 @@ const MemberProfileView = (props: PropTypes) => {
   const session: any = useSession();
   const [possibleNewImageName, setPossibleNewImageName] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
   const handleUploadImage = async (event: any) => {
     setIsUploadingImage(true);
@@ -69,11 +72,9 @@ const MemberProfileView = (props: PropTypes) => {
   const handleUpdateUser = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const form: any = event.target as HTMLFormElement;
     const data = {
       fullname: form.fullname.value,
-      email: form.email.value,
       phone: form.phone.value,
     };
 
@@ -81,8 +82,32 @@ const MemberProfileView = (props: PropTypes) => {
 
     if (result.status === 200) {
       setIsLoading(false);
+      setProfile({
+        ...profile,
+        fullname: data.fullname,
+        phone: data.phone,
+      });
+      form.reset();
     } else {
       setIsLoading(false);
+      console.log(result);
+    }
+  };
+
+  const handleUpdatePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsUpdatingPassword(true);
+    const form: any = event.target as HTMLFormElement;
+    const data = {
+      password: form['new-password'].value,
+      oldPassword: form['old-password'].value,
+      lastPassword: profile.password,
+    };
+    console.log(data);
+    const result = await userServices.updateUserPassword(session.data?.accessToken, session.data?.user.id, data);
+    if (result.status === 200) {
+      setIsUpdatingPassword(false);
+      form.reset();
     }
   };
 
@@ -90,71 +115,88 @@ const MemberProfileView = (props: PropTypes) => {
     <MemberLayout>
       <h1 className={styles.profile__title}>{`${profile.fullname}'s `}Profile</h1>
       <div className={styles.profile__main}>
-        <div className={styles.profile__main__avatar}>
-          {profile.image ? (
-            <Image
-              className={styles.profile__main__avatar__image}
-              src={profile.image}
-              alt="member-avatar"
-              width={200}
-              height={200}
-            />
-          ) : (
-            <div className={styles.profile__main__avatar__image}>{profile?.fullname?.charAt(0)}</div>
-          )}
+        <div className={styles.profile__main__row}>
+          <div className={styles.profile__main__row__avatar}>
+            <h2 className={styles.profile__main__row__avatar__title}>Avatar</h2>
+            {profile.image ? (
+              <Image
+                className={styles.profile__main__row__avatar__image}
+                src={profile.image}
+                alt="member-avatar"
+                width={200}
+                height={200}
+              />
+            ) : (
+              <div className={styles.profile__main__row__avatar__image}>{profile?.fullname?.charAt(0)}</div>
+            )}
 
-          <form onSubmit={handleUploadImage}>
-            {!possibleNewImageName && (
-              <label className={styles.profile__main__avatar__label} htmlFor="upload-image">
-                <p>Click here to upload a new avatar. Large image will be resized.</p>
-                <p>
-                  Maximum upload size is <b>1 MB</b>
-                </p>
-              </label>
-            )}
-            <input
-              className={styles.profile__main__avatar__input}
-              type="file"
-              name="image"
-              id="upload-image"
-              onChange={(e: any) => {
-                e.preventDefault();
-                setPossibleNewImageName(e.currentTarget.files[0].name);
-              }}
-            />
-            {!isUploadingImage && possibleNewImageName && (
-              <div className={styles.profile__main__avatar__new_image_label}>
-                <p>New image selected</p>
-                <p className={styles.profile__main__avatar__new_image_label__name}>{possibleNewImageName}</p>
-              </div>
-            )}
-            {isUploadingImage && <p className={styles.profile__main__avatar__new_image_label}>Uploading image...</p>}
-            {possibleNewImageName && !isUploadingImage && (
-              <div className={styles.profile__main__avatar__button_container}>
-                <Button className={styles.profile__main__avatar__button_container__button} type="submit">
-                  Upload New Image
-                </Button>
-                <Button
-                  className={styles.profile__main__avatar__button_container__button}
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setPossibleNewImageName('')}
-                >
-                  Cancel
-                </Button>
-              </div>
-            )}
-          </form>
-        </div>
-        <div className={styles.profile__main__detail}>
-          <form onSubmit={handleUpdateUser}>
-            <Input label="Fullname" name="fullname" type="text" defaultValue={profile.fullname} />
-            <Input label="Email" name="email" type="email" defaultValue={profile.email} />
-            <Input label="Phone" name="phone" type="text" defaultValue={profile.phone} />
-            <Button type="submit" variant="primary">
-              {isLoading ? 'Updating...' : 'Update Profile'}
-            </Button>
-          </form>
+            <form onSubmit={handleUploadImage}>
+              {!possibleNewImageName && (
+                <label className={styles.profile__main__row__avatar__label} htmlFor="upload-image">
+                  <p>Click here to upload a new avatar. Large image will be resized.</p>
+                  <p>
+                    Maximum upload size is <b>1 MB</b>
+                  </p>
+                </label>
+              )}
+              <input
+                className={styles.profile__main__row__avatar__input}
+                type="file"
+                name="image"
+                id="upload-image"
+                onChange={(e: any) => {
+                  e.preventDefault();
+                  setPossibleNewImageName(e.currentTarget.files[0].name);
+                }}
+              />
+              {!isUploadingImage && possibleNewImageName && (
+                <div className={styles.profile__main__row__avatar__new_image_label}>
+                  <p>New image selected</p>
+                  <p className={styles.profile__main__row__avatar__new_image_label__name}>{possibleNewImageName}</p>
+                </div>
+              )}
+              {isUploadingImage && (
+                <p className={styles.profile__main__row__avatar__new_image_label}>Uploading image...</p>
+              )}
+              {possibleNewImageName && !isUploadingImage && (
+                <div className={styles.profile__main__row__avatar__button_container}>
+                  <Button className={styles.profile__main__row__avatar__button_container__button} type="submit">
+                    Upload New Image
+                  </Button>
+                  <Button
+                    className={styles.profile__main__row__avatar__button_container__button}
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setPossibleNewImageName('')}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </form>
+          </div>
+          <div className={styles.profile__main__row__profile}>
+            <h2 className={styles.profile__main__row__profile__title}>Profile</h2>
+            <form onSubmit={handleUpdateUser}>
+              <Input label="Fullname" name="fullname" type="text" defaultValue={profile.fullname} />
+              <Input label="Phone" name="phone" type="number" defaultValue={profile.phone} />
+              <Input label="Email" name="email" type="email" defaultValue={profile.email} disabled />
+              <Input label="Role" name="role" type="text" defaultValue={profile.role} disabled />
+              <Button type="submit" variant="primary">
+                {isLoading ? 'Updating...' : 'Update Profile'}
+              </Button>
+            </form>
+          </div>
+          <div className={styles.profile__main__row__password}>
+            <h2 className={styles.profile__main__row__password__title}>Change Password</h2>
+            <form onSubmit={handleUpdatePassword}>
+              <Input name="old-password" label="Old Password" type="password"></Input>
+              <Input name="new-password" label="New Password" type="password"></Input>
+              <Button type="submit" disabled={isUpdatingPassword}>
+                {isUpdatingPassword ? 'Updating...' : 'Update Password'}
+              </Button>
+            </form>
+          </div>
         </div>
       </div>
     </MemberLayout>
