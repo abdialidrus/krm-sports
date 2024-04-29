@@ -142,6 +142,21 @@ const MemberProfileView = (props: PropTypes) => {
     }
   };
 
+  const validatePasswordFields = (oldPassword: string, newPassword: string) => {
+    let isValid = true;
+    if (!oldPassword) {
+      setOldPasswordError('Old passwords is required');
+      isValid = false;
+    }
+
+    if (!newPassword) {
+      setNewPasswordError('New passwords is required');
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const handleUpdatePassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form: any = event.target as HTMLFormElement;
@@ -151,19 +166,8 @@ const MemberProfileView = (props: PropTypes) => {
     setNewPasswordError('');
     setOldPasswordError('');
 
-    if (!password && !oldPassword) {
-      setNewPasswordError('New passwords is required');
-      setOldPasswordError('Old passwords is required');
-      return;
-    }
-
-    if (!password) {
-      setNewPasswordError('New passwords is required');
-      return;
-    }
-
-    if (!oldPassword) {
-      setNewPasswordError('Old passwords is required');
+    const isValid = validatePasswordFields(oldPassword, password);
+    if (!isValid) {
       return;
     }
 

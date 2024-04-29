@@ -15,7 +15,7 @@ const toastVariants: any = {
     color: '#a3d9a5',
     barColor: '#3f9242',
   },
-  danger: {
+  error: {
     title: 'Error',
     icon: 'bxs-hot',
     color: '#f39b9a',

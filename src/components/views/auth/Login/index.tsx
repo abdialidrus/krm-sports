@@ -1,30 +1,69 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import styles from './Login.module.scss';
 import { useRouter } from 'next/router';
-import { FormEvent, useState } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import AuthLayout from '@/components/layouts/AuthLayout';
 
-const LoginView = () => {
+type PropTypes = {
+  setToaster: Dispatch<
+    SetStateAction<{
+      variant: string;
+      message: string;
+    }>
+  >;
+};
+
+const LoginView = (props: PropTypes) => {
+  const { setToaster } = props;
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+
+  const [emailFieldError, setEmailFieldError] = useState('');
+  const [passwordFieldError, setPasswordFieldError] = useState('');
 
   const { push, query } = useRouter();
 
   const callbackUrl: any = query.callbackUrl || '/';
 
+  const validateFields = (email: string, password: string) => {
+    let isValid = true;
+    if (!email) {
+      setEmailFieldError('Email is required');
+      isValid = false;
+    }
+
+    if (!password) {
+      setPasswordFieldError('Password is required');
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
-    setError('');
+
+    setEmailFieldError('');
+    setPasswordFieldError('');
     const form = event.target as HTMLFormElement;
+    const email = form.email.value;
+    const password = form.password.value;
+
+    const isValid = validateFields(email, password);
+
+    if (!isValid) {
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
       const res = await signIn('credentials', {
         redirect: false,
-        email: form.email.value,
-        password: form.password.value,
+        email: email,
+        password: password,
         callbackUrl,
       });
 
@@ -33,20 +72,20 @@ const LoginView = () => {
         form.reset();
         push(callbackUrl);
       } else {
-        setError('Email or password is incorrect');
+        setToaster({ variant: 'error', message: 'Email or password is incorrect' });
         setIsLoading(false);
       }
     } catch (error) {
-      setError('Email or password is incorrect');
+      setToaster({ variant: 'error', message: 'Email or password is incorrect' });
       setIsLoading(false);
     }
   };
 
   return (
-    <AuthLayout title="Login" link="/auth/register" linkText="Don't have an account? Sign up " error={error}>
+    <AuthLayout title="Login" link="/auth/register" linkText="Don't have an account? Sign up ">
       <form onSubmit={handleSubmit}>
-        <Input label="Email" name="email" type="email" />
-        <Input label="Password" name="password" type="password" />
+        <Input label="Email" name="email" type="email" error={emailFieldError} />
+        <Input label="Password" name="password" type="password" error={passwordFieldError} />
         <Button type="submit" className={styles.login__button}>
           {isLoading ? 'Loading...' : 'Login'}
         </Button>
