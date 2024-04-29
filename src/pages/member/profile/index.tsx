@@ -2,9 +2,18 @@ import MemberProfileView from '@/components/views/member/Profile';
 import userServices from '@/services/user';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
-const MemberProfilePage = () => {
+type PropTypes = {
+  setToaster: Dispatch<
+    SetStateAction<{
+      variant: string;
+      message: string;
+    }>
+  >;
+};
+
+const MemberProfilePage = ({ setToaster }: PropTypes) => {
   const [profile, setProfile] = useState({
     image: '',
     phone: '',
@@ -22,7 +31,6 @@ const MemberProfilePage = () => {
       if (session.data === undefined) return;
 
       const { data } = await userServices.getProfile(session.data?.accessToken, session.data?.user?.id);
-      console.log(data.data);
       setProfile(data.data);
     };
 
@@ -30,7 +38,7 @@ const MemberProfilePage = () => {
   }, [session]);
   return (
     <>
-      <MemberProfileView profile={profile} setProfile={setProfile} />
+      <MemberProfileView profile={profile} setProfile={setProfile} setToaster={setToaster} />
     </>
   );
 };

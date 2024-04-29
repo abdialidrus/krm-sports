@@ -8,6 +8,7 @@ import userServices from '@/services/user';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { uploadFile } from '@/lib/firebase/service';
+import Loader from '@/components/ui/Loader';
 
 type PropTypes = {
   profile: {
@@ -28,15 +29,26 @@ type PropTypes = {
       password: string;
     }>
   >;
+  setToaster: Dispatch<
+    SetStateAction<{
+      variant: string;
+      message: string;
+    }>
+  >;
 };
 const MemberProfileView = (props: PropTypes) => {
-  const { profile, setProfile } = props;
-  const [isLoading, setIsLoading] = useState(false);
+  const { profile, setProfile, setToaster } = props;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = useSession();
   const [possibleNewImageName, setPossibleNewImageName] = useState('');
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
+  const [newPasswordError, setNewPasswordError] = useState('');
+  const [oldPasswordError, setOldPasswordError] = useState('');
+  const [fullNameFieldError, setFullNameFieldError] = useState('');
 
   const handleUploadImage = async (event: any) => {
     setIsUploadingImage(true);
@@ -45,12 +57,20 @@ const MemberProfileView = (props: PropTypes) => {
     if (file) {
       const newName = 'profile.' + file.name.split('.')[1];
       const newPath = `images/users/${session.data?.user.id}/${newName}`;
-      uploadFile(newPath, file, (isComplete, downloadURL) => {
-        if (isComplete && downloadURL) {
+      uploadFile(newPath, file, (isComplete, result) => {
+        if (isComplete && result) {
           setIsUploadingImage(false);
           setPossibleNewImageName('');
           event.target[0].value = '';
-          updateUserImage(downloadURL);
+          updateUserImage(result);
+        } else if (!isComplete && result) {
+          setIsUploadingImage(false);
+          setPossibleNewImageName('');
+          event.target[0].value = '';
+          setToaster({
+            variant: 'danger',
+            message: result,
+          });
         }
       });
     }
@@ -66,48 +86,111 @@ const MemberProfileView = (props: PropTypes) => {
         ...profile,
         image: imageURL,
       });
+      setToaster({
+        variant: 'success',
+        message: 'Avatar updated successfully.',
+      });
+    } else {
+      setToaster({
+        variant: 'success',
+        message: 'There was a problem when updating image. Please try again later.',
+      });
     }
   };
 
   const handleUpdateUser = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
     const form: any = event.target as HTMLFormElement;
+    const fullname = form.fullname.value;
+    const phone = form.phone.value;
+
+    setFullNameFieldError('');
+
+    if (!fullname) {
+      setFullNameFieldError('Fullname is required');
+      return;
+    }
+
+    setIsUpdatingProfile(true);
+
     const data = {
-      fullname: form.fullname.value,
-      phone: form.phone.value,
+      fullname: fullname,
+      phone: phone,
     };
 
+    setFullNameFieldError('');
     const result = await userServices.updateUserProfile(session.data?.accessToken, session.data?.user.id, data);
 
     if (result.status === 200) {
-      setIsLoading(false);
+      setIsUpdatingProfile(false);
       setProfile({
         ...profile,
         fullname: data.fullname,
         phone: data.phone,
       });
       form.reset();
+      setToaster({
+        variant: 'success',
+        message: 'Profile updated successfully.',
+      });
     } else {
-      setIsLoading(false);
-      console.log(result);
+      setIsUpdatingProfile(false);
+      setToaster({
+        variant: 'danger',
+        message: 'Failed to update profile. Check all the details and try again.',
+      });
     }
   };
 
   const handleUpdatePassword = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsUpdatingPassword(true);
     const form: any = event.target as HTMLFormElement;
+    const password = form['new-password'].value;
+    const oldPassword = form['old-password'].value;
+
+    setNewPasswordError('');
+    setOldPasswordError('');
+
+    if (!password && !oldPassword) {
+      setNewPasswordError('New passwords is required');
+      setOldPasswordError('Old passwords is required');
+      return;
+    }
+
+    if (!password) {
+      setNewPasswordError('New passwords is required');
+      return;
+    }
+
+    if (!oldPassword) {
+      setNewPasswordError('Old passwords is required');
+      return;
+    }
+
+    setNewPasswordError('');
+    setOldPasswordError('');
+    setIsUpdatingPassword(true);
+
     const data = {
-      password: form['new-password'].value,
-      oldPassword: form['old-password'].value,
+      password: password,
+      oldPassword: oldPassword,
       lastPassword: profile.password,
     };
-    console.log(data);
     const result = await userServices.updateUserPassword(session.data?.accessToken, session.data?.user.id, data);
     if (result.status === 200) {
       setIsUpdatingPassword(false);
       form.reset();
+      setToaster({
+        variant: 'success',
+        message: 'Password updated successfully.',
+      });
+    } else {
+      setIsUpdatingPassword(false);
+      form.reset();
+      setToaster({
+        variant: 'danger',
+        message: 'Failed to update password. Please try again later.',
+      });
     }
   };
 
@@ -173,28 +256,43 @@ const MemberProfileView = (props: PropTypes) => {
                   </Button>
                 </div>
               )}
+              {isUploadingImage && <Loader />}
             </form>
           </div>
           <div className={styles.profile__main__row__profile}>
             <h2 className={styles.profile__main__row__profile__title}>Profile</h2>
             <form onSubmit={handleUpdateUser}>
-              <Input label="Fullname" name="fullname" type="text" defaultValue={profile.fullname} />
+              <Input
+                label="Fullname"
+                name="fullname"
+                type="text"
+                defaultValue={profile.fullname}
+                error={fullNameFieldError}
+              />
               <Input label="Phone" name="phone" type="number" defaultValue={profile.phone} />
-              <Input label="Email" name="email" type="email" defaultValue={profile.email} disabled />
-              <Input label="Role" name="role" type="text" defaultValue={profile.role} disabled />
-              <Button type="submit" variant="primary">
-                {isLoading ? 'Updating...' : 'Update Profile'}
-              </Button>
+              <Input label="Email" name="email" type="email" defaultValue={profile.email} disabled error="" />
+              <Input label="Role" name="role" type="text" defaultValue={profile.role} disabled error="" />
+
+              {!isUpdatingProfile && (
+                <Button type="submit" variant="primary">
+                  Update Profile
+                </Button>
+              )}
+              {isUpdatingProfile && <Loader />}
             </form>
           </div>
           <div className={styles.profile__main__row__password}>
             <h2 className={styles.profile__main__row__password__title}>Change Password</h2>
             <form onSubmit={handleUpdatePassword}>
-              <Input name="old-password" label="Old Password" type="password"></Input>
-              <Input name="new-password" label="New Password" type="password"></Input>
-              <Button type="submit" disabled={isUpdatingPassword}>
-                {isUpdatingPassword ? 'Updating...' : 'Update Password'}
-              </Button>
+              <Input name="old-password" label="Old Password" type="password" error={oldPasswordError}></Input>
+              <Input name="new-password" label="New Password" type="password" error={newPasswordError}></Input>
+
+              {!isUpdatingPassword && (
+                <Button type="submit" disabled={isUpdatingPassword}>
+                  Update Password
+                </Button>
+              )}
+              {isUpdatingPassword && <Loader />}
             </form>
           </div>
         </div>
