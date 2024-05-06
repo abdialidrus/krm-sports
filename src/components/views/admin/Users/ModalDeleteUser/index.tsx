@@ -7,7 +7,7 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 const ModalDeleteUser = (props: any) => {
-  const { deletedUser, setDeletedUser, setUsersData } = props;
+  const { deletedUser, setDeletedUser, setUsersData, setToaster } = props;
   const session: any = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,8 +19,16 @@ const ModalDeleteUser = (props: any) => {
       setDeletedUser({});
       const { data } = await userServices.getAllUsers(session.data?.accessToken);
       setUsersData(data.data);
+      setToaster({
+        variant: 'success',
+        message: 'User deleted successfully.',
+      });
     } else {
       setIsLoading(false);
+      setToaster({
+        variant: 'error',
+        message: 'There was a problem when deleting user. Please try again later.',
+      });
     }
   };
   return (

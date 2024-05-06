@@ -2,7 +2,7 @@
 import AdminLayout from '@/components/layouts/AdminLayout';
 import Button from '@/components/ui/Button';
 import styles from './Users.module.scss';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ModalUpdateUser from './ModalUpdateUser';
 import ModalDeleteUser from './ModalDeleteUser';
 
@@ -14,10 +14,16 @@ type PropTypes = {
     phone: string;
     role: string;
   }[];
+  setToaster: Dispatch<
+    SetStateAction<{
+      variant: string;
+      message: string;
+    }>
+  >;
 };
 
 const AdminUsersView = (props: PropTypes) => {
-  const { users } = props;
+  const { users, setToaster } = props;
   const [updatedUser, setUpdateUser] = useState<any>({});
   const [deletedUser, setDeletedUser] = useState<any>({});
   const [usersData, setUsersData] = useState<any>([]);
@@ -75,10 +81,20 @@ const AdminUsersView = (props: PropTypes) => {
         </div>
       </AdminLayout>
       {Object.keys(updatedUser).length && (
-        <ModalUpdateUser updatedUser={updatedUser} setUpdatedUser={setUpdateUser} setUsersData={setUsersData} />
+        <ModalUpdateUser
+          updatedUser={updatedUser}
+          setUpdatedUser={setUpdateUser}
+          setUsersData={setUsersData}
+          setToaster={setToaster}
+        />
       )}
       {Object.keys(deletedUser).length && (
-        <ModalDeleteUser deletedUser={deletedUser} setDeletedUser={setDeletedUser} setUsersData={setUsersData} />
+        <ModalDeleteUser
+          deletedUser={deletedUser}
+          setDeletedUser={setDeletedUser}
+          setUsersData={setUsersData}
+          setToaster={setToaster}
+        />
       )}
     </>
   );

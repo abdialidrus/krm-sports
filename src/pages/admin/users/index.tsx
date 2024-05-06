@@ -1,9 +1,18 @@
 import UsersAdminView from '@/components/views/admin/Users';
 import userServices from '@/services/user';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
-const AdminUsersPage = () => {
+type PropTypes = {
+  setToaster: Dispatch<
+    SetStateAction<{
+      variant: string;
+      message: string;
+    }>
+  >;
+};
+
+const AdminUsersPage = ({ setToaster }: PropTypes) => {
   const [users, setUsers] = useState([]);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const session: any = useSession();
@@ -18,7 +27,7 @@ const AdminUsersPage = () => {
 
   return (
     <>
-      <UsersAdminView users={users} />
+      <UsersAdminView users={users} setToaster={setToaster} />
     </>
   );
 };
