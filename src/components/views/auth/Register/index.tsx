@@ -82,9 +82,10 @@ const RegisterView = (props: PropTypes) => {
       } else {
         setToaster({ variant: 'error', message: result.data.message });
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       setIsLoading(false);
-      setToaster({ variant: 'error', message: 'Failed to register. Account already exist' });
+      setToaster({ variant: 'error', message: error.message + '. Please try again later' });
     }
   };
 

@@ -75,8 +75,8 @@ const LoginView = (props: PropTypes) => {
         setToaster({ variant: 'error', message: 'Email or password is incorrect' });
         setIsLoading(false);
       }
-    } catch (error) {
-      setToaster({ variant: 'error', message: 'Email or password is incorrect' });
+    } catch (error: any) {
+      setToaster({ variant: 'error', message: error.message + '. Please try again later' });
       setIsLoading(false);
     }
   };
