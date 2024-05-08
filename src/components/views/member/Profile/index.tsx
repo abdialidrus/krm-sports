@@ -9,26 +9,11 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { uploadFile } from '@/lib/firebase/service';
 import Loader from '@/components/ui/Loader';
+import { User } from '@/types/user.type';
 
 type PropTypes = {
-  profile: {
-    image: string;
-    phone: string;
-    email: string;
-    fullname: string;
-    role: string;
-    password: string;
-  };
-  setProfile: Dispatch<
-    SetStateAction<{
-      image: string;
-      phone: string;
-      email: string;
-      fullname: string;
-      role: string;
-      password: string;
-    }>
-  >;
+  profile: User;
+  setProfile: Dispatch<SetStateAction<User>>;
   setToaster: Dispatch<
     SetStateAction<{
       variant: string;
@@ -273,7 +258,13 @@ const MemberProfileView = (props: PropTypes) => {
                 defaultValue={profile.fullname}
                 error={fullNameFieldError}
               />
-              <Input label="Phone" name="phone" type="number" defaultValue={profile.phone} />
+              <Input
+                label="Phone"
+                name="phone"
+                type="number"
+                defaultValue={profile.phone}
+                placeholder="Input your phone number"
+              />
               <Input label="Email" name="email" type="email" defaultValue={profile.email} disabled error="" />
               <Input label="Role" name="role" type="text" defaultValue={profile.role} disabled error="" />
 
@@ -288,11 +279,25 @@ const MemberProfileView = (props: PropTypes) => {
           <div className={styles.profile__main__row__password}>
             <h2 className={styles.profile__main__row__password__title}>Change Password</h2>
             <form onSubmit={handleUpdatePassword}>
-              <Input name="old-password" label="Old Password" type="password" error={oldPasswordError}></Input>
-              <Input name="new-password" label="New Password" type="password" error={newPasswordError}></Input>
+              <Input
+                name="old-password"
+                label="Old Password"
+                type="password"
+                error={oldPasswordError}
+                disabled={profile.type === 'google'}
+                placeholder="Input your current password"
+              ></Input>
+              <Input
+                name="new-password"
+                label="New Password"
+                type="password"
+                error={newPasswordError}
+                disabled={profile.type === 'google'}
+                placeholder="Input your new password"
+              ></Input>
 
               {!isUpdatingPassword && (
-                <Button type="submit" disabled={isUpdatingPassword}>
+                <Button type="submit" disabled={isUpdatingPassword || profile.type === 'google'}>
                   Update Password
                 </Button>
               )}
