@@ -172,20 +172,30 @@ const MemberProfileView = (props: PropTypes) => {
       oldPassword: oldPassword,
       lastPassword: profile?.password,
     };
-    const result = await userServices.updateUserPassword(session.data?.accessToken, session.data?.user.id, data);
-    if (result.status === 200) {
+
+    try {
+      const result = await userServices.updateUserPassword(session.data?.accessToken, session.data?.user.id, data);
+      if (result.status === 200) {
+        setIsUpdatingPassword(false);
+        form.reset();
+        setToaster({
+          variant: 'success',
+          message: 'Password updated successfully.',
+        });
+      } else {
+        setIsUpdatingPassword(false);
+        form.reset();
+        setToaster({
+          variant: 'error',
+          message: 'Failed to update password. Please try again later.',
+        });
+      }
+    } catch (error) {
       setIsUpdatingPassword(false);
       form.reset();
       setToaster({
-        variant: 'success',
-        message: 'Password updated successfully.',
-      });
-    } else {
-      setIsUpdatingPassword(false);
-      form.reset();
-      setToaster({
-        variant: 'danger',
-        message: 'Failed to update password. Please try again later.',
+        variant: 'error',
+        message: 'Failed to update password. Please try again later. ' + error,
       });
     }
   };
