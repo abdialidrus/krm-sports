@@ -4,19 +4,35 @@ import Modal from '@/components/ui/Modal';
 import userServices from '@/services/user';
 import styles from './ModalDeleteUser.module.scss';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { User } from '@/types/user.type';
 
-const ModalDeleteUser = (props: any) => {
+type PropTypes = {
+  deletedUser: User | null;
+  setDeletedUser: Dispatch<SetStateAction<User | null>>;
+  setUsersData: Dispatch<SetStateAction<User[]>>;
+  setToaster: Dispatch<
+    SetStateAction<{
+      variant: string;
+      message: string;
+    }>
+  >;
+};
+
+const ModalDeleteUser = (props: PropTypes) => {
   const { deletedUser, setDeletedUser, setUsersData, setToaster } = props;
   const session: any = useSession();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {
+    if (!deletedUser) {
+      return;
+    }
     setIsLoading(true);
     const result = await userServices.deleteUser(session.data?.accessToken, deletedUser.id);
 
     if (result.status === 200) {
-      setDeletedUser({});
+      setDeletedUser(null);
       const { data } = await userServices.getAllUsers(session.data?.accessToken);
       setUsersData(data.data);
       setToaster({
@@ -32,7 +48,7 @@ const ModalDeleteUser = (props: any) => {
     }
   };
   return (
-    <Modal onClose={() => setDeletedUser({})}>
+    <Modal onClose={() => setDeletedUser(null)}>
       <h1 className={styles.modal__title}>Are you sure?</h1>
       <Button type="button" onClick={handleDelete}>
         {isLoading ? 'Deleting...' : 'Delete'}

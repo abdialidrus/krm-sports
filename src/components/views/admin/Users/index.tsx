@@ -1,19 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import AdminLayout from '@/components/layouts/AdminLayout';
 import Button from '@/components/ui/Button';
 import styles from './Users.module.scss';
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ModalUpdateUser from './ModalUpdateUser';
 import ModalDeleteUser from './ModalDeleteUser';
+import { User } from '@/types/user.type';
 
 type PropTypes = {
-  users: {
-    id: string;
-    fullname: string;
-    email: string;
-    phone: string;
-    role: string;
-  }[];
+  users: User[];
   setToaster: Dispatch<
     SetStateAction<{
       variant: string;
@@ -24,9 +18,9 @@ type PropTypes = {
 
 const AdminUsersView = (props: PropTypes) => {
   const { users, setToaster } = props;
-  const [updatedUser, setUpdateUser] = useState<any>({});
-  const [deletedUser, setDeletedUser] = useState<any>({});
-  const [usersData, setUsersData] = useState<any>([]);
+  const [updatedUser, setUpdateUser] = useState<User | null>(null);
+  const [deletedUser, setDeletedUser] = useState<User | null>(null);
+  const [usersData, setUsersData] = useState<User[]>([]);
 
   useEffect(() => {
     setUsersData(users);
@@ -49,7 +43,7 @@ const AdminUsersView = (props: PropTypes) => {
               </tr>
             </thead>
             <tbody>
-              {usersData.map((user: any, index: number) => (
+              {usersData.map((user: User, index: number) => (
                 <tr key={user.id}>
                   <td>{index + 1}</td>
                   <td>{user.fullname}</td>
@@ -80,7 +74,7 @@ const AdminUsersView = (props: PropTypes) => {
           </table>
         </div>
       </AdminLayout>
-      {Object.keys(updatedUser).length && (
+      {updatedUser && (
         <ModalUpdateUser
           updatedUser={updatedUser}
           setUpdatedUser={setUpdateUser}
@@ -88,7 +82,7 @@ const AdminUsersView = (props: PropTypes) => {
           setToaster={setToaster}
         />
       )}
-      {Object.keys(deletedUser).length && (
+      {deletedUser && (
         <ModalDeleteUser
           deletedUser={deletedUser}
           setDeletedUser={setDeletedUser}
