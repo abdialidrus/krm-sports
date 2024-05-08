@@ -71,17 +71,20 @@ const RegisterView = (props: PropTypes) => {
       password: password,
     };
 
-    const result = await authServices.registerAccount(data);
+    try {
+      const result = await authServices.registerAccount(data);
 
-    setIsLoading(false);
+      setIsLoading(false);
 
-    if (result.status === 200) {
-      form.reset();
-      push('/auth/login');
-    } else if (result.status === 400) {
-      setToaster({ variant: 'error', message: result.data.message });
-    } else {
-      setToaster({ variant: 'error', message: 'Something went wrong. Please try again later.' });
+      if (result.status === 200) {
+        form.reset();
+        push('/auth/login');
+      } else {
+        setToaster({ variant: 'error', message: result.data.message });
+      }
+    } catch (error) {
+      setIsLoading(false);
+      setToaster({ variant: 'error', message: 'Failed to register. Account already exist' });
     }
   };
 

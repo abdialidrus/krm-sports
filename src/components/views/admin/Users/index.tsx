@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import ModalUpdateUser from './ModalUpdateUser';
 import ModalDeleteUser from './ModalDeleteUser';
 import { User } from '@/types/user.type';
+import { useSession } from 'next-auth/react';
 
 type PropTypes = {
   users: User[];
@@ -21,6 +22,9 @@ const AdminUsersView = (props: PropTypes) => {
   const [updatedUser, setUpdateUser] = useState<User | null>(null);
   const [deletedUser, setDeletedUser] = useState<User | null>(null);
   const [usersData, setUsersData] = useState<User[]>([]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session: any = useSession();
 
   useEffect(() => {
     setUsersData(users);
@@ -80,6 +84,7 @@ const AdminUsersView = (props: PropTypes) => {
           setUpdatedUser={setUpdateUser}
           setUsersData={setUsersData}
           setToaster={setToaster}
+          session={session}
         />
       )}
       {deletedUser && (
@@ -88,6 +93,7 @@ const AdminUsersView = (props: PropTypes) => {
           setDeletedUser={setDeletedUser}
           setUsersData={setUsersData}
           setToaster={setToaster}
+          session={session}
         />
       )}
     </>

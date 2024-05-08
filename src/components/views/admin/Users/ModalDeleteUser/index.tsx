@@ -3,7 +3,6 @@ import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import userServices from '@/services/user';
 import styles from './ModalDeleteUser.module.scss';
-import { useSession } from 'next-auth/react';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { User } from '@/types/user.type';
 
@@ -17,11 +16,11 @@ type PropTypes = {
       message: string;
     }>
   >;
+  session: any;
 };
 
 const ModalDeleteUser = (props: PropTypes) => {
-  const { deletedUser, setDeletedUser, setUsersData, setToaster } = props;
-  const session: any = useSession();
+  const { deletedUser, setDeletedUser, setUsersData, setToaster, session } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const handleDelete = async () => {

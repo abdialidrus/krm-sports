@@ -12,8 +12,8 @@ import Loader from '@/components/ui/Loader';
 import { User } from '@/types/user.type';
 
 type PropTypes = {
-  profile: User;
-  setProfile: Dispatch<SetStateAction<User>>;
+  profile: User | null;
+  setProfile: Dispatch<SetStateAction<User | null>>;
   setToaster: Dispatch<
     SetStateAction<{
       variant: string;
@@ -62,6 +62,10 @@ const MemberProfileView = (props: PropTypes) => {
   };
 
   const updateUserImage = async (imageURL: string) => {
+    if (!profile) {
+      return;
+    }
+
     const data = {
       image: imageURL,
     };
@@ -108,6 +112,9 @@ const MemberProfileView = (props: PropTypes) => {
 
     if (result.status === 200) {
       setIsUpdatingProfile(false);
+      if (!profile) {
+        return;
+      }
       setProfile({
         ...profile,
         fullname: data.fullname,
@@ -163,7 +170,7 @@ const MemberProfileView = (props: PropTypes) => {
     const data = {
       password: password,
       oldPassword: oldPassword,
-      lastPassword: profile.password,
+      lastPassword: profile?.password,
     };
     const result = await userServices.updateUserPassword(session.data?.accessToken, session.data?.user.id, data);
     if (result.status === 200) {
@@ -185,12 +192,12 @@ const MemberProfileView = (props: PropTypes) => {
 
   return (
     <MemberLayout>
-      <h1 className={styles.profile__title}>{`${profile.fullname}'s `}Profile</h1>
+      <h1 className={styles.profile__title}>{`${profile?.fullname}'s `}Profile</h1>
       <div className={styles.profile__main}>
         <div className={styles.profile__main__row}>
           <div className={styles.profile__main__row__avatar}>
             <h2 className={styles.profile__main__row__avatar__title}>Avatar</h2>
-            {profile.image ? (
+            {profile?.image ? (
               <Image
                 className={styles.profile__main__row__avatar__image}
                 src={profile.image}
@@ -255,18 +262,18 @@ const MemberProfileView = (props: PropTypes) => {
                 label="Fullname"
                 name="fullname"
                 type="text"
-                defaultValue={profile.fullname}
+                defaultValue={profile?.fullname}
                 error={fullNameFieldError}
               />
               <Input
                 label="Phone"
                 name="phone"
                 type="number"
-                defaultValue={profile.phone}
+                defaultValue={profile?.phone}
                 placeholder="Input your phone number"
               />
-              <Input label="Email" name="email" type="email" defaultValue={profile.email} disabled error="" />
-              <Input label="Role" name="role" type="text" defaultValue={profile.role} disabled error="" />
+              <Input label="Email" name="email" type="email" defaultValue={profile?.email} disabled error="" />
+              <Input label="Role" name="role" type="text" defaultValue={profile?.role} disabled error="" />
 
               {!isUpdatingProfile && (
                 <Button type="submit" variant="primary">
@@ -284,7 +291,7 @@ const MemberProfileView = (props: PropTypes) => {
                 label="Old Password"
                 type="password"
                 error={oldPasswordError}
-                disabled={profile.type === 'google'}
+                disabled={profile?.type === 'google'}
                 placeholder="Input your current password"
               ></Input>
               <Input
@@ -292,12 +299,12 @@ const MemberProfileView = (props: PropTypes) => {
                 label="New Password"
                 type="password"
                 error={newPasswordError}
-                disabled={profile.type === 'google'}
+                disabled={profile?.type === 'google'}
                 placeholder="Input your new password"
               ></Input>
 
               {!isUpdatingPassword && (
-                <Button type="submit" disabled={isUpdatingPassword || profile.type === 'google'}>
+                <Button type="submit" disabled={isUpdatingPassword || profile?.type === 'google'}>
                   Update Password
                 </Button>
               )}

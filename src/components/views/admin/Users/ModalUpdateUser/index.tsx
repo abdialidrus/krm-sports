@@ -5,7 +5,6 @@ import Modal from '@/components/ui/Modal';
 import Select from '@/components/ui/Select';
 import userServices from '@/services/user';
 import { User } from '@/types/user.type';
-import { useSession } from 'next-auth/react';
 import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
 
 type PropTypes = {
@@ -18,13 +17,12 @@ type PropTypes = {
       message: string;
     }>
   >;
+  session: any;
 };
 
 const ModalUpdateUser = (props: PropTypes) => {
-  const { updatedUser, setUpdatedUser, setUsersData, setToaster } = props;
+  const { updatedUser, setUpdatedUser, setUsersData, setToaster, session } = props;
   const [isLoading, setIsLoading] = useState(false);
-
-  const session: any = useSession();
 
   const handleUpdateUser = async (event: FormEvent<HTMLFormElement>) => {
     if (!updatedUser) {
